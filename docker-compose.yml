@@ -17,7 +17,7 @@ services:
     restart: always
     volumes:
       - co-task-data:/var/lib/mysql
-#      - ./mysql/init:/docker-entrypoint-initdb.d
+      - ./mysql/init:/docker-entrypoint-initdb.d
     networks:
       - co-task-network
   zipkin:
