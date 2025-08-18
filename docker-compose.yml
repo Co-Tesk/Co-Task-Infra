@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: co-task-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    restart: always
+    volumes:
+      - co-task-data:/var/lib/mysql
+#      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - co-task-network
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: co-task-zipkin
+    ports:
+      - "9412:9411"
+    networks:
+      co-task-network:
+
+volumes:
+  co-task-data:
+
+networks:
+  co-task-network:
+    driver: bridge
