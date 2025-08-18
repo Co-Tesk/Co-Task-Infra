@@ -26,9 +26,9 @@ CREATE TABLE `tokens`
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) COMMENT='재발급 토큰 저장소 (Refresh Token)';
 
--- 3. `verifys` 테이블: 이메일/비밀번호 인증 코드 저장소
+-- 3. `verifies` 테이블: 이메일/비밀번호 인증 코드 저장소
 -- 인증 타입, 코드, 만료 시간, 사용 여부를 관리합니다.
-CREATE TABLE `verifys`
+CREATE TABLE `verifies`
 (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '인증 식별 값',
     `user_id` BIGINT NOT NULL COMMENT '사용자 식별 값 (FK)',
