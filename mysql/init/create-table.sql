@@ -32,7 +32,7 @@ CREATE TABLE `verifies`
 (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '인증 식별 값',
     `user_id` BIGINT NOT NULL COMMENT '사용자 식별 값 (FK)',
-    `type` ENUM('email', 'password') NOT NULL COMMENT '인증 타입: 이메일, 비밀번호',
+    `type` ENUM('EMAIL', 'PASSWORD') NOT NULL COMMENT '인증 타입: 이메일, 비밀번호',
     `code` VARCHAR(36) NOT NULL COMMENT '인증 코드 (UUID 형태 예상)',
     `expires_at` DATETIME NOT NULL COMMENT '만료 시간 (생성 시각으로부터 1시간)',
     `is_used` BOOLEAN DEFAULT FALSE COMMENT '사용 여부',
@@ -61,7 +61,7 @@ CREATE TABLE `project_members`
 (
     `user_id` BIGINT NOT NULL COMMENT '사용자 식별 값 (FK)',
     `project_id` BIGINT NOT NULL COMMENT '프로젝트 식별 값 (FK)',
-    `role` ENUM('member', 'viewer') NOT NULL COMMENT '프로젝트 별 사용자의 권한',
+    `role` ENUM('MEMBER', 'VIEWER') NOT NULL COMMENT '프로젝트 별 사용자의 권한',
     PRIMARY KEY (`user_id`, `project_id`), -- 복합 기본 키
     FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE
 ) COMMENT='프로젝트에 참여한 멤버 정보 테이블';
