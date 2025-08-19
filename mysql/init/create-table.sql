@@ -20,7 +20,7 @@ CREATE TABLE `tokens`
 (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '토큰 식별 값',
     `user_id` BIGINT NOT NULL COMMENT '사용자 식별 값 (FK)',
-    `token` VARCHAR(255) UNIQUE NOT NULL COMMENT '재발급 토큰 (Refresh Token)',
+    `token` VARCHAR(64) UNIQUE NOT NULL COMMENT '재발급 토큰 (Refresh Token) sha256 해시값',
     `expired_date` DATETIME NOT NULL COMMENT '토큰 만료일',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
