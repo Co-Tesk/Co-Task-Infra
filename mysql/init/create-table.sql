@@ -40,6 +40,20 @@ CREATE TABLE `verifies`
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) COMMENT='이메일/비밀번호 인증 토큰 저장소';
 
+-- 4. `social_accounts` 테이블: 사용자 소셜 로그인 계정 정보
+-- 한 사용자는 여러 소셜 계정을 연결할 수 있으므로, 1:N 관계를 가집니다.
+CREATE TABLE `social_accounts`
+(
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '소셜 계정 식별 값',
+    `user_id` BIGINT NOT NULL COMMENT '사용자 식별 값 (FK)',
+    `provider` VARCHAR(50) NOT NULL COMMENT '소셜 로그인 제공자 (예: GOOGLE, KAKAO, NAVER)',
+    `provider_uid` VARCHAR(255) NOT NULL COMMENT '소셜 제공자가 발급한 사용자 고유 ID',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+    UNIQUE KEY `uk_provider_uid` (`provider`, `provider_uid`), -- ✨ (제공자, 제공자_UID) 조합으로 유니크 제약 추가
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) COMMENT='사용자 소셜 로그인 계정 정보 테이블';
+
 use `project_service_db`;
 
 -- 4. `projects` 테이블: 프로젝트 기본 정보
