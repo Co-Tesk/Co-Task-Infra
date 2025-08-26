@@ -27,6 +27,18 @@ services:
       - "9412:9411"
     networks:
       co-task-network:
+  co-task-config-server:
+    image: namung08/co-task-config:latest
+    container_name: co-task-config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - ENCRYPT_KEY=${BOOTSTRAP_KEY}
+    networks:
+      co-task-network:
+    depends_on:
+      - mysql
+      - zipkin
 
 volumes:
   co-task-data:
