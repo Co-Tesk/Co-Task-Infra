@@ -20,6 +20,12 @@ services:
       - ./mysql/init:/docker-entrypoint-initdb.d
     networks:
       - co-task-network
+    healthcheck: # MySQL Healthcheck 추가
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MYSQL_ROOT_PASSWORD" ] # 컨테이너 내부에서 MySQL 연결 확인
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s # MySQL이 처음 시작하는 데 충분한 시간을 줍니다.
   zipkin:
     image: openzipkin/zipkin:latest
     container_name: co-task-zipkin
@@ -39,8 +45,10 @@ services:
     networks:
       co-task-network:
     depends_on:
-      - mysql
-      - zipkin
+      mysql:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
     volumes:
       - co-task-data:/var/lib/config
     healthcheck:
@@ -56,14 +64,50 @@ services:
     networks:
       co-task-network:
     depends_on:
+      mysql:
+        condition: service_healthy
       co-task-config-server:
         condition: service_healthy
+      zipkin:
+        condition: service_started
     volumes:
       - co-task-data:/var/lib/server-discovery
     environment:
       - CONFIG_SERVER_URL=http://co-task-config-server:8888
+      - EUREKA_DEFAULT_URL=http://localhost:8761/eureka/
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+  co-task-user-server:
+    image: namung08/co-task-user-server:latest
+    container_name: co-task-user-server
+    ports:
+      - "8081:8081"
+    networks:
+      co-task-network:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      co-task-config-server:
+        condition: service_healthy
+      co-task-server-discovery:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
+    volumes:
+      - co-task-data:/var/lib/user-server
+    environment:
+      - CONFIG_SERVER_URL=http://co-task-config-server:8888
+      - SPRING_DATASOURCE_URL=jdbc:mysql://co-task-mysql:3306/user_service_db # 올바른 JDBC URL
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://co-task-zipkin:9411/api/v2/spans
+      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://co-task-zipkin:9411/api/v2/spans
+      - EUREKA_DEFAULT_URL=http://co-task-server-discovery:8761/eureka/ # 👈 환경 변수 이름 수정
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
       interval: 10s
       timeout: 10s
       retries: 2
