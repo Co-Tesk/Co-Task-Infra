@@ -34,11 +34,15 @@ services:
       - "8888:8888"
     environment:
       - ENCRYPT_KEY=${BOOTSTRAP_KEY}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME=${GIT_USERNAME}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD=${GIT_PASSWORD}
     networks:
       co-task-network:
     depends_on:
       - mysql
       - zipkin
+    volumes:
+      - co-task-data:/var/lib/config
 
 volumes:
   co-task-data:
