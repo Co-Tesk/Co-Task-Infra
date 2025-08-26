@@ -43,6 +43,30 @@ services:
       - zipkin
     volumes:
       - co-task-data:/var/lib/config
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+  co-task-server-discovery:
+    image: namung08/co-task-server_discovery:latest
+    container_name: co-task-server-discovery
+    ports:
+      - "8761:8761"
+    networks:
+      co-task-network:
+    depends_on:
+      co-task-config-server:
+        condition: service_healthy
+    volumes:
+      - co-task-data:/var/lib/server-discovery
+    environment:
+      - CONFIG_SERVER_URL=http://co-task-config-server:8888
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 2
 
 volumes:
   co-task-data:
