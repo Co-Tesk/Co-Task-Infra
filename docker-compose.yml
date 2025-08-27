@@ -80,6 +80,34 @@ services:
       interval: 10s
       timeout: 10s
       retries: 2
+  co-task-api-gateway:
+    image: namung08/co-task-api-gateway:latest
+    container_name: co-task-api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      co-task-network:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      co-task-config-server:
+        condition: service_healthy
+      co-task-server-discovery:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
+    volumes:
+      - co-task-data:/var/lib/api-gateway
+    environment:
+      - CONFIG_SERVER_URL=http://co-task-config-server:8888
+      - MANAGEMENT_ZIPKIN_TRACING_ENDPOINT=http://co-task-zipkin:9411/api/v2/spans
+      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://co-task-zipkin:9411/api/v2/spans
+      - EUREKA_DEFAULT_URL=http://co-task-server-discovery:8761/eureka/ # 👈 환경 변수 이름 수정
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 2
   co-task-user-server:
     image: namung08/co-task-user-server:latest
     container_name: co-task-user-server
